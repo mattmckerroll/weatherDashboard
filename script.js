@@ -1,6 +1,8 @@
 moment().format("L");
 
 function search(city){
+    city = city.trim();
+    //console.log(city)
     askURL = "https://api.openweathermap.org/data/2.5/weather?q="+city+"&units=metric&appid=8c597b19af9603b4a730899ac64b0a8c";
     fiveday = "https://api.openweathermap.org/data/2.5/forecast?q="+city+"&cnt=5&units=metric&appid=8c597b19af9603b4a730899ac64b0a8c";
 
@@ -90,13 +92,13 @@ $.ajax({
         }).then(function (response) {
             //grab the daily weather data, and put it into an array
             var dayArr = response.list;
-            $("#5day").empty();
+            $("#daily5").empty();
 
             for (var i = 0; i < dayArr.length; i++) {
                 var dailydiv = $("<div class='card shadow-lg text-white bg-primary mx-auto mb-10 p-2' style='width: 8.5rem; height: 11rem;'>");
                 
                 var date5 = dayArr[i].dt_txt;
-                var dateOnly = date.substr(0,10)
+                var dateOnly = date5.substr(0,10)
                 var temp = dayArr[i].main.temp;
                 var humidex = dayArr[i].main.humidity;
 
@@ -108,7 +110,7 @@ $.ajax({
 
                 wthIcon.attr("style", "height: 40px; width: 40px");
 
-                dailydiv.append(date5);
+                dailydiv.append(dateOnly);
                 dailydiv.append(wthIcon);
                 dailydiv.append(dailyTemp);
                 dailydiv.append(dailyHum);
@@ -125,11 +127,17 @@ $.ajax({
     
     });
 
-    //5day api call 
+    
 }
 
 function init(){
+var prevSearch = JSON.parse(localStorage.getItem("city"));
+console.log(prevSearch)
+var searchDiv = $("<button class='border border-dark rounded btn'>").text(prevSearch);
+var searchlistDiv = $("<div>");
+searchlistDiv.append(searchDiv);
 
+$("#searchlist").prepend(searchlistDiv);
 }
 
 
@@ -145,10 +153,12 @@ $("#citySelection").on("click", function(event){
     var cityText = $("#cityInput").val().trim();
 
     var listText = $(this).siblings("input").val();
-    /*console.log(this); //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    console.log(listText);
-    console.log("this is the city list ", cityList); */
+
     cityList.push(listText);
+
+    console.log(listText)
+    localStorage.setItem("city", JSON.stringify(cityList));
+
     search(cityText);
     init();
 
@@ -157,8 +167,9 @@ $("#citySelection").on("click", function(event){
 });
 
 //event listener for clicking on the list.
-$("#searchlist").on("click", function(event){
+$("#searchlist").on("click", ".btn", function(event){
     event.preventDefault();
     search($(this).text());
+
 })
 
